@@ -4,11 +4,16 @@ namespace App\Command;
 
 use App\Service\CsvService;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use App\Entity\Fan;
 
+#[AsCommand(
+    name: 'ImportFanCsvCommand',
+    description: 'This command allows you to import fans from a CSV file..',
+)]
 class ImportFanCsvCommand extends Command
 {
     protected static $defaultName = 'import:fan-csv';
@@ -23,6 +28,10 @@ class ImportFanCsvCommand extends Command
         $this->entityManager = $entityManager;
     }
 
+    protected function configure(): void
+    {
+    }
+
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $filename = 'fans.csv';
@@ -30,12 +39,9 @@ class ImportFanCsvCommand extends Command
 
         foreach ($data as $index => $row) {
             $fan = new Fan();
-            if ($index === 0) {
-                continue;
-            }
             $fan->setName($row['name']);
             $fan->setEmail($row['email']);
-            $fan->setMemberNumber((int) $row['fan_number']);
+            $fan->setMemberNumber((int)$row['member_number']);
             $fan->setBirthday(new \DateTime($row['birthday']));
 
             $this->entityManager->persist($fan);

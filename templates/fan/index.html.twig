@@ -1,0 +1,46 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Fan Webapp | Home {% endblock %}
+
+{% block body %}
+<style>
+    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
+</style>
+
+<div class="example-wrapper">
+    {{ form_start(fanVerificationForm, {'action': path('app_fan_verify'), 'method': 'POST', 'attr': {'id': 'fanVerificationForm'}}) }}
+    {{ form_row(fanVerificationForm.birthday) }}
+    {{ form_row(fanVerificationForm.memberNumber) }}
+    <button type="submit">Verify Fan</button>
+    {{ form_end(fanVerificationForm) }}
+    <div id="formErrors"></div>
+</div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('fanVerificationForm');
+            form.addEventListener('submit', function(event) {
+                event.preventDefault();
+                const formData = new FormData(form);
+
+                fetch(form.action, {
+                    method: 'POST',
+                    body: formData
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('formErrors').innerText = data.message;
+                        if (data.success && data.redirectUrl) {
+                            console.log(data)
+                            window.location.href = data.redirectUrl;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        document.getElementById('formErrors').innerText = 'An error occurred';
+                    });
+            });
+        });
+    </script>
+{% endblock %}
+
