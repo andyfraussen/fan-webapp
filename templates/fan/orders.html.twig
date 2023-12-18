@@ -1,0 +1,73 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Fan Webapp | Orders{% endblock %}
+
+{% block body %}
+    {% if products is not null %}
+        <script>
+            function selectProduct(productId) {
+                document.getElementById('product_id').value = Number(productId);
+                console.log(productId);
+            }
+        </script>
+
+        {{ form_start(orderForm, {
+            'action': path('app_fan_orders_create', {'id': fan.id}),
+            'method': 'POST',
+            'attr': {'id': 'orderCreationForm'}
+        }) }}
+
+        {{ form_widget(orderForm._token) }}
+
+        <ul>
+            {% for product in products %}
+                <li onclick="selectProduct({{ product.id }})">
+                    <img src="{{ asset('images/products/' ~ product.image) }}" alt="{{ product.label }}">
+                    <span>{{ product.label }}</span>
+                </li>
+            {% endfor %}
+        </ul>
+
+        <input type="hidden" id="product_id" name="create_order_type[product]" value="">
+
+        <button type="submit">Create Order</button>
+        {{ form_end(orderForm, {'render_rest': false}) }}
+        <div id="formErrors"></div>
+    {% else %}
+        <h1>Orders</h1>
+            {% for order in orders %}
+               <ul>
+                   <li> {{ order.product.label }}</li>
+                   <li> {{ order.product.Sku }}</li>
+               </ul>
+            {% endfor %}
+    {% endif %}
+{% endblock %}
+{% block javascripts %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('orderCreationForm');
+            form.addEventListener('submit', function (event) {
+                event.preventDefault();
+                const formData = new FormData(form);
+
+                fetch(form.action, {
+                    method: 'POST',
+                    body: formData
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('formErrors').innerText = data.message;
+                        if (data.success && data.redirectUrl) {
+                            console.log(data)
+                            window.location.href = data.redirectUrl;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        document.getElementById('formErrors').innerText = 'An error occurred';
+                    });
+            });
+        });
+    </script>
+{% endblock %}
