@@ -6,6 +6,7 @@ use App\Service\CsvService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use App\Entity\Fan;
@@ -30,12 +31,14 @@ class ImportFanCsvCommand extends Command
 
     protected function configure(): void
     {
+        $this
+            ->setDescription('This command allows you to import fans from a CSV file.')
+            ->addArgument('filename', InputArgument::REQUIRED, 'The CSV file to import');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $filename = 'fans.csv';
-        $data = $this->csvService->parse($filename);
+        $data = $this->csvService->parse($input->getArgument('filename'));
 
         foreach ($data as $index => $row) {
             $fan = new Fan();

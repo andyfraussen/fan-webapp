@@ -2,11 +2,8 @@
 
 namespace App\Controller;
 
-use App\Entity\Fan;
-use App\Entity\Product;
 use App\Form\FanVerificationType;
 use App\Repository\FanRepository;
-use App\Repository\ProductRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -50,20 +47,7 @@ class FanController extends AbstractController
             return new JsonResponse(['success' => false, 'message' => 'Fan not found'], 200);
         }
 
-        return new JsonResponse(['success' => true, 'message' => 'Fan verified', 'redirectUrl' =>$this->generateUrl('app_fan_orders', ['id' => $fan->getId()])]);
-    }
-
-    #[Route('/fan/{id}/orders', name: 'app_fan_orders')]
-    public function fanOrders(Fan $fan, ProductRepository $productRepository): Response
-    {
-        $orders = $fan->getOrders();
-        $products = count($orders) === 0 ? $products = $productRepository->findAll() : null;
-
-        return $this->render('fan/orders.html.twig', [
-            'orders' => $orders,
-            'products' => $products,
-            'fan' => $fan
-        ]);
+        return new JsonResponse(['success' => true, 'message' => 'Fan verified', 'redirectUrl' => $this->generateUrl('app_fan_orders', ['id' => $fan->getId()])]);
     }
 
     private function createErrorResponse(string $message, int $statusCode): JsonResponse
